@@ -7,41 +7,33 @@
 (setf *js-string-delimiter* #\")
 
 (defvar *band* nil)
-(defvar *manager-phone-number* nil)
 (defvar *albums* (list))
 (defvar *expenses* (list))
 
-(defun band-name (band) (first band))
-(defun band-albums (band) (second band))
-(defun band-expenses (band) (third band))
+(defstruct band
+  (name "No Name Band")
+  (albums (list))
+  (expenses (list)))
 
-(defun album-title (album) (first album))
-(defun album-songs (album) (second album))
+(defstruct album
+  (title "No Name Album")
+  (songs (list)))
+
 (defun album-download-count (album)
   (loop for song in (album-songs album) sum (song-download-count song)))
 
-(defun song-title (song) (first song))
-(defun song-download-url (song) (second song))
-(defun song-download-count (song) (third song))
-
-(defun make-band (band-name)
-  (list band-name (list) (list)))
-
-(defun make-album (title songs)
-  (list title songs))
+(defstruct song
+  (title "No Name Song")
+  (download-url "http://")
+  (download-count -1))
 
 (defun add-album (album)
   (push album *albums*))
 
-(defun make-song (title download-url download-count)
-  (list title download-url download-count))
-
-(defun make-expense (item cost date)
-  (list item cost date))
-
-(defun expense-item (expense) (first expense))
-(defun expense-cost (expense) (second expense))
-(defun expense-date (expense) (third expense))
+(defstruct expense
+  (item "No Name Item")
+  (cost 0.0)
+  (date "DD MMMM YYYY"))
 
 (defun add-band-expense (item cost)
   (push (make-expense item cost "14 April 2012") *expenses*))
@@ -55,11 +47,10 @@
   |#
   )
 
-(defun make-review (title text &optional (user "anonymous"))
-  (list title text user))
-(defun review-title (review) (first review))
-(defun review-text (review) (second review))
-(defun review-user (review) (third review))
+(defstruct review
+  (title "No Title")
+  (text "No Text")
+  (user "anonymous"))
 
 (defun trends-for (query)
   (assoc :results (trendspottr:query query 10)))
@@ -246,7 +237,6 @@ function gps(position) {
 							   (loop for i from 1 to (random 12) collect (make-song (format nil "Title #~a" i) "http://google.ca" (random 100)))))))
 
 (defun start-server (&optional (port 4242))
-  (setf *band* (make-band "Best Coast"))
-  (setf *manager-phone-number* "1231232")
-  (setf *expenses* (list))
+  (setf *band* (make-band "Best Coast")
+        *expenses* (list))
   (start (make-instance 'easy-acceptor :port port)))
